@@ -1,0 +1,67 @@
+const MessageList = {
+  messages: [],
+  loadMessages: () => {
+    return m
+      .request({
+        method: "GET",
+        url: "/api/messages",
+      })
+      .then((result) => {
+        MessageList.messages = result;
+      });
+  },
+  addMessages: (message) => {
+    return m
+      .request({
+        method: "POST",
+        url: "/api/messages",
+        body: message,
+      })
+      .then(() => {
+        MessageList.loadMessages();
+      });
+  },
+};
+
+const ChatApp = {
+  oninit: () => {
+    MessageList.loadMessages();
+  },
+
+  newMessage: "",
+
+  view: () => {
+    return [
+      m(
+        "DIV",
+        m("H1", "Kavi"),
+        m(
+          "DIV",
+          MessageList.messages.map((message) => {
+            return m("DIV", message.text);
+          }),
+        ),
+        m("INPUT", {
+          type: "text",
+          oninput: (e) => {
+            ChatApp.newMessage = e.target.value;
+          },
+          placeholder: "Enter a new stanza...",
+        }),
+        m(
+          "BUTTON",
+          {
+            onclick: () => {
+              MessageList.addMessages({ text: ChatApp.newMessage });
+              ChatApp.newMessage = "";
+            },
+          },
+          "Send",
+        ),
+        m("DIV", ChatApp.newMessage),
+      ),
+    ];
+  },
+};
+
+m.mount(document.getElementById("app"), ChatApp);
